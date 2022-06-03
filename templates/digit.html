@@ -1,0 +1,219 @@
+<html>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="keywords" content="extract text, extract text in image, extract text image python, extract text python, image to text python, extractor python text, extract text py3" />
+    <meta name="description" content="TextExtractor it is software created to extract text from any type of image using python 3" />
+    <title>Group 10</title>
+<script type="text/javascript" src="{{url_for('static', filename='jquery.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/slick.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+<link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+<link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon" />
+<script src="https://kit.fontawesome.com/c069b5d403.js" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Acme&family=Lobster&family=Patua+One&family=Rubik&family=Sniglet&display=swap" rel="stylesheet">
+
+<header>
+    <div class="container-fluid p-0">
+        <!-- for width 100% padding 0 -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#"><i class="fas fa-book-reader fa-3x mx-3"></i></a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <!-- <span class="navbar-toggler-icon"></span> -->
+        <i class="fas fa-align-right text-light"></i>
+      </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <DIV class="ms-auto"></DIV>
+                    <!-- boot strape proparty flex justify -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/">HOME</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('text')}}">TEXT</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('character')}}">CHARACTER</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('digit')}}">DIGIT</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('fun')}}">FUN</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('learn')}}">LEARN</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('about')}}">ABOUT</a>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <hr style="height:5px;border-width:0;color:white;background-color:white">
+</header>
+<script type="text/javascript">
+    var canvas, ctx, flag = false,
+        prevX = 0,
+        currX = 0,
+        prevY = 0,
+        currY = 0,
+        dot_flag = false;
+
+    var x = "red",
+        y = 8;
+
+    function init() {
+        canvas = document.getElementById('can');
+        document.getElementById("probs").style.display = "none";
+        document.getElementById("interpret").style.display = "none";
+        ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#FFE933";
+        w = canvas.width;
+        h = canvas.height;
+
+        canvas.addEventListener("mousemove", function (e) {
+            findxy('move', e)
+        }, false);
+        canvas.addEventListener("mousedown", function (e) {
+            findxy('down', e)
+        }, false);
+        canvas.addEventListener("mouseup", function (e) {
+            findxy('up', e)
+        }, false);
+        canvas.addEventListener("mouseout", function (e) {
+            findxy('out', e)
+        }, false);
+    }
+
+
+    function draw() {
+        ctx.beginPath();
+        ctx.moveTo(prevX, prevY);
+        ctx.lineTo(currX, currY);
+        ctx.strokeStyle = x;
+        ctx.lineWidth = y;
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    function erase() {
+        ctx.clearRect(0, 0, w, h);
+        document.getElementById("canvasimg").style.display = "none";
+        document.getElementById("prediction").style.display = "none";
+        document.getElementById("probs").style.display = "none";
+        document.getElementById("interpret").style.display = "none";
+    }
+
+    function save() {
+        document.getElementById("prediction").style.display = "block";
+        document.getElementById("probs").style.display = "block";
+        document.getElementById("interpret").style.display = "block";
+        var final_image = canvas.toDataURL();
+        var a = document.createElement('a');
+        a.href = final_image;
+        a.download = 'process.png';
+        document.body.appendChild(a);
+        // a.click();
+        $.ajax({
+            url: "{{ url_for('process') }}",
+            type: 'POST',
+            data: final_image,
+            success: function (response) {
+                endresult = JSON.parse(JSON.stringify(response))
+                console.log(endresult)
+                $('#prediction').html('Prediction is: <span id="text">' + endresult.data + '</span>')
+                $('#probs').prop('src', 'data:image/png;base64,' + endresult.probencoded)
+                $('#interpret').prop('src', 'data:image/png;base64,' + endresult.interpretencoded)
+            }
+        });
+    }
+
+    function findxy(res, e) {
+        if (res == 'down') {
+            prevX = currX;
+            prevY = currY;
+            currX = e.clientX - canvas.offsetLeft;
+            currY = e.clientY - canvas.offsetTop;
+
+            flag = true;
+            dot_flag = true;
+            if (dot_flag) {
+                ctx.beginPath();
+                ctx.fillStyle = x;
+                ctx.fillRect(currX, currY, 2, 2);
+                ctx.closePath();
+                dot_flag = false;
+            }
+        }
+        if (res == 'up' || res == "out") {
+            flag = false;
+        }
+        if (res == 'move') {
+            if (flag) {
+                prevX = currX;
+                prevY = currY;
+                currX = e.clientX - canvas.offsetLeft;
+                currY = e.clientY - canvas.offsetTop;
+                draw();
+            }
+        }
+    }
+</script>
+
+<body id="dark-mode" onload="init()">
+     <div class="preloader">
+        <div class="frame">
+            <div class="center">
+                <div class="dot-1"></div>
+                <div class="dot-2"></div>
+                <div class="dot-3"></div>
+            </div>
+        </div>
+    </div>
+        
+<br><br><br><br><br>
+    <div id="side">
+        <h4 id='text'> Draw a Digit in the center of the Box.. </h4>
+        <canvas id="can" width="200px" height="200px"></canvas>
+	
+        <img id="canvasimg">
+        <div style="margin-top: 10;">
+            <button class="ripple" id="btn" onclick="save()"> predict </button>
+            &nbsp;
+            <button id="clr" onclick="erase()"> clear </button>
+            <font color=white><h3 id="prediction"></h3></font>
+        </div>
+    </div>
+    <div>
+	<div class=".particles-js-canvas-el" id="particles-js"></div>
+        <img id="probs" src="" alt="" height="45%" width="35%">
+        <img id="interpret" src="" alt="" height="45%" width="35%">
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/slick.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/particles.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.isotope.min.html') }}"></script>
+    <script src="{{ url_for('static', filename='js/circular.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+</body>
+
+</html>

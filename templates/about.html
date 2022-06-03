@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="keywords" content="extract text, extract text in image, extract text image python, extract text python, image to text python, extractor python text, extract text py3" />
+    <meta name="description" content="TextExtractor it is software created to extract text from any type of image using python 3" />
+    <title>Group 10</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/slick.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon" />
+    <script src="https://kit.fontawesome.com/c069b5d403.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Acme&family=Lobster&family=Patua+One&family=Rubik&family=Sniglet&display=swap" rel="stylesheet">
+</head>
+<header>
+    <div class="container-fluid p-0">
+        <!-- for width 100% padding 0 -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#"><i class="fas fa-book-reader fa-3x mx-3"></i></a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <!-- <span class="navbar-toggler-icon"></span> -->
+        <i class="fas fa-align-right text-light"></i>
+      </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <DIV class="ms-auto"></DIV>
+                    <!-- boot strape proparty flex justify -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/">HOME</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('text')}}">TEXT</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('character')}}">CHARACTER</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('digit')}}">DIGIT</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('fun')}}">FUN</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('learn')}}">LEARN</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('about')}}">ABOUT</a>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+<hr style="height:5px;border-width:0;color:white;background-color:white">
+<!-- ////////////////////////////////////////nav bar end//////////////////////////////////////////////////////// -->
+<div class="preloader">
+        <div class="frame">
+            <div class="center">
+                <div class="dot-1"></div>
+                <div class="dot-2"></div>
+                <div class="dot-3"></div>
+            </div>
+        </div>
+    </div>
+
+<!-- //////////////////////////////////////////header end////////////////////////////////////////////////////////// -->
+<section class="section-1">
+    <div class="container text-center">
+        <!----------------------------------ye contenair h--------------------- -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="pray">
+                    <img src="{{ url_for('static', filename='images/desc1.jpg') }}" alt="">
+
+                </div>
+            </div>
+
+            <!-- --------------------------------yaha phla colum end hua -->
+            <div class="col-md-6">
+                <div class="panel text-left">
+                    <h1>Description</h1>
+                    <p class="pt-4">
+                        The main goal of this project is to develop a system with a view to help in the classification and recognition of Handwriting characters and digits and which will going to help the kids of the society for improving their basic writing skills for every alphabet and which is A to Z and as well as the digit which is from 0 to 9. In this we also provide a text extraction part in which the kids can upload there required pictures and the OCR system will extract the text written in the given picture and provide them the output. They can download the written text as a .txt file and take it for further use as well. The system will also provide some funny activities like they can watch some videos related to their interest to increase their knowledge as well. And the kids can also play some games for the entertainment purpose. This system will help the kids to get learn while performing different tasks.
+                    </p>
+                </div>
+            </div>
+            <!-- ---------------------------------yaha dusra colum end hua -->
+        </div>
+    </div>
+</section>
+<!-- /////////////////////////////////////////////section 1 end//////////////////////////////////////////////////// -->
+
+<!-- ///////////////////////////////////////////section 2 end////////////////////////////////////// -->
+
+<!-- ///////////////////////////////////////////section3 end///////////////////////////////////// -->
+<section class="section-4 ">
+    <div class="team row">
+        <div class="col-md-4 col-12 text-center">
+            <!-- card 1 -->
+            <div class="card mr-2 d-inline-block shadow-lg">
+
+                    <img src="{{ url_for('static', filename='images/UI-face-3.jpg') }}" alt="member" class="img-fluid border-radius p-4">
+                <div>
+                    <h3 class="card-title">Ritika</h3>
+                    <p class="card-text">Roll No.- 1813310163<br>
+				Department- CSE<br>
+				“The purpose of education is to turn mirrors into windows.”</p>
+			<a href="https://www.linkedin.com/in/ritika-singh-6235211ab?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BLm0dV9lAR1amTC0tKs6ejw%3D%3D" class="text-secondary text-decoration-none">Linkedin</a>
+                    <p class="text-black-50">NIET, Gr. Noida</p>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-4 col-12">
+            <!-- carasoul start -->
+            <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active text-center">
+                        <!-- edit after active use text-c.. -->
+                        <!-- card 2 -->
+                        <div class="card mr-2 d-inline-block shadow-lg">
+                            <div class="card-img-top">
+                                <!-- belw edit n uplod are images -->
+                                <img src="{{ url_for('static', filename='images/UI-face-1.jpg') }}" alt="member" class="img-fluid rounded-circle w-50 p-4">
+                                <!-- yaha proparty change hua img img f..ke baad me -->
+                            </div>
+                            <div>
+                                <h3 class="card-title">Rajani Kant Singh</h3>
+                                <p class="card-text">Roll No.- 1813310149<br>
+				Department- CSE<br>
+				“Education breeds confidence. Confidence breeds hope. Hope breeds peace.”</p>
+				<a href="https://www.linkedin.com/in/rajani-kant-singh-a852a9143/" class="text-secondary text-decoration-none">Linkedin</a>
+                                <p class="text-black-50">NIET, Gr. Noida</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item text-center">
+                        <!-- edit after -item use text c.. -->
+                        <!-- card 3 -->
+                        <div class="card mr-2 d-inline-block shadow-lg">
+                            <div class="card-img-top">
+                                <!-- belw edit n uplod are images -->
+                                <img src="{{ url_for('static', filename='images/1.jpg') }}" alt="member" class="img-fluid rounded-circle w-50 p-4">
+                            </div>
+                            <!-- yaha proparty change hua img img f..ke baad me -->
+                            <div>
+                                <h3 class="card-title">Tushar Verma</h3>
+                                <p class="card-text">Roll No.- 1813310228<br>
+				Department- CSE<br>
+				“Education is not preparation for life; education is life itself.”</p>
+                                <a href="https://www.linkedin.com/in/tushar-verma-94a309173" class="text-secondary text-decoration-none">Linkedin</a>
+                                <p class="text-black-50">NIET, Gr. Noida</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-12 text-center">
+            <!-- edit text center -->
+
+            <!-- card 4 -->
+            <div class="card mr-2 d-inline-block shadow-lg">
+                <div class="card-img-top">
+                    <img src="{{ url_for('static', filename='images/nitesh.jpg') }}" alt="member" class="img-fluid border-radius p-4">
+                </div>
+                <!-- yaha css ka proparty pest hua img class me -->
+                <div>
+                    <h3 class="card-title">Nitesh Ranjan</h3>
+                    <p class="card-text">Roll No.- 1813310127<br>
+				Department- CSE<br>
+				“Education is what remains after one has forgotten what one has learned in school.”</p>
+			<a href="https://www.linkedin.com/in/niteshranjan886/" class="text-secondary text-decoration-none">Linkedin</a>
+                    <p class="text-black-50">NIET, Gr. Noida</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /////////////////////////////////////////////////////section 4 end/////////////////////////////// -->
+<footer>
+    <div class="contaneir-fluid p-0">
+        <div class="row text-left">
+            <div class="col-md-5">
+                    <h1 class="text-light">About us</h1>
+                    <p class="text-muted">
+                        The project "Digit and Character instructor" is developed by the team of 4 members, Tushar Verma, Rajani Kant Singh, Ritika  and Nitesh Ranjan. We developed this project under the guidance of Mr. Vivek Kumar Sharma.
+                    </p>
+                    <p class="pt-4">We are the student of Computer Science & Engineering Dept. of  Noida Institute of Engineering and Technology, Gr. Noida.</span> </p>
+                </div>
+            <!-- first colum end -->
+            <div class="col-md-5">
+            </div>
+            <!-- second column end -->
+            <div class="col-md-2 col-sm-12">
+                <h4 class="text-light">follow us</h4>
+                <p class="text-muted">let us be social</p>
+                <div class="column">
+                    <i class="fab fa-facebook-square"></i>
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-twitter"></i>
+                    <i class="fab fa-telegram"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+<!-- Optional JavaScript -->
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/slick.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/particles.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.isotope.min.html') }}"></script>
+    <script src="{{ url_for('static', filename='js/circular.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js" integrity="sha384-Atwg2Pkwv9vp0ygtn1JAojH0nYbwNJLPhwyoVbhoPwBhjQPR5VtM2+xf0Uwh9KtT" crossorigin="anonymous"></script>
+</body>
+
+</html>
