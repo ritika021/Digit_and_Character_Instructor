@@ -1,0 +1,314 @@
+import torch
+from flask import Flask, render_template, request, url_for, Response, jsonify
+from flask_restful import Api, Resource, reqparse
+import pytesseract
+import cv2
+import config
+import matplotlib
+from io import BytesIO
+from PIL import Image
+from train import MnistModel
+import matplotlib.pyplot as plt
+import os, werkzeug
+from math import floor
+import base64
+import numpy as np
+from bidict import bidict
+from flask import (
+    Flask, render_template, request,
+    redirect, url_for, session
+)
+from random import choice
+from tensorflow import keras
+matplotlib.use('Agg')
+
+ENCODER = bidict({
+    'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6,
+    'G': 7, 'H': 8, 'I': 9, 'J': 10, 'K': 11, 'L': 12,
+    'M': 13, 'N': 14, 'O': 15, 'P': 16, 'Q': 17, 'R': 18,
+    'S': 19, 'T': 20, 'U': 21, 'V': 22, 'W': 23, 'X': 24,
+    'Y': 25, 'Z': 26
+})
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe' 
+
+MODEL = None
+DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+REDUCTION_COEFF = 0.9
+QUALITY = 85
+
+app = Flask(__name__)
+app.secret_key = 'alphabet_quiz'
+api = Api(app)
+parser = reqparse.RequestParser()
+parser.add_argument('file',type=werkzeug.datastructures.FileStorage, location='files')
+
+class SaveOutput:
+    def __init__(self):
+        self.outputs = []
+
+    def __call__(self, module, module_in, module_out):
+        self.outputs.append(module_out)
+
+    def clear(self):
+        self.outputs = []
+
+def register_hook():
+    save_output = SaveOutput()
+    hook_handles = []
+
+    for layer in MODEL.modules():
+        if isinstance(layer, torch.nn.modules.conv.Conv2d):
+            handle = layer.register_forward_hook(save_output)
+            hook_handles.append(handle)
+    return save_output
+
+def module_output_to_numpy(tensor):
+    return tensor.detach().to('cpu').numpy()
+
+def autolabel(rects, ax):
+    """Attach a text label above each bar in *rects*, displaying its height."""
+    for rect in rects:
+        height = rect.get_height()
+        ax.annotate('{0:.2f}'.format(height),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+
+def prob_img(probs):
+    fig, ax = plt.subplots()
+    rects = ax.bar(range(len(probs)), probs)
+    ax.set_xticks(range(len(probs)), (0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
+    ax.set_ylim(0, 110)
+    ax.set_title('Probability % of Digit by Model')
+    autolabel(rects, ax)
+    probimg = BytesIO()
+    fig.savefig(probimg, format='png')
+    probencoded = base64.b64encode(probimg.getvalue()).decode('utf-8')
+    return probencoded
+
+def interpretability_img(save_output):
+    images = module_output_to_numpy(save_output.outputs[0])
+    with plt.style.context("seaborn-white"):
+        fig, _ = plt.subplots(figsize=(20, 20))
+        plt.suptitle("Interpretability by Model", fontsize=50)
+        for idx in range(16):
+            plt.subplot(4, 4, idx+1)
+            plt.imshow(images[0, idx])
+        plt.setp(plt.gcf().get_axes(), xticks=[], yticks=[])
+    interpretimg = BytesIO()
+    fig.savefig(interpretimg, format='png')
+    interpretencoded = base64.b64encode(
+        interpretimg.getvalue()).decode('utf-8')
+    return interpretencoded
+
+def mnist_prediction(img):
+    save_output = register_hook()
+    img = img.to(DEVICE, dtype=torch.float)
+    outputs = MODEL(x=img)
+
+    probs = torch.exp(outputs.data)[0] * 100
+    probencoded = prob_img(probs)
+    interpretencoded = interpretability_img(save_output)
+
+    _, output = torch.max(outputs.data, 1)
+    pred = module_output_to_numpy(output)
+    return pred[0], probencoded, interpretencoded
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route("/process", methods=["GET", "POST"])
+def process():
+    data_url = str(request.get_data())
+    offset = data_url.index(',')+1
+    img_bytes = base64.b64decode(data_url[offset:])
+    img = Image.open(BytesIO(img_bytes))
+    img = img.convert('L')
+    img = img.resize((28, 28))
+    # img.save(r'templates\image.png')
+    img = np.array(img)
+    img = img.reshape((1, 28, 28))
+    img = torch.tensor(img, dtype=torch.float).unsqueeze(0)
+
+    data, probencoded, interpretencoded = mnist_prediction(img)
+
+    response = {
+        'data': str(data),
+        'probencoded': str(probencoded),
+        'interpretencoded': str(interpretencoded),
+    }
+    return jsonify(response)
+
+@app.route('/text')
+def text():
+    return render_template('text.html')
+
+@app.route('/fun') 
+
+def fun():
+    return render_template('fun.html')
+
+@app.route('/learn')
+def learn():
+    return render_template('learn.html')
+    
+@app.route('/digit', methods=["GET", "POST"])
+def digit():
+    return render_template('digit.html')
+
+@app.route('/character')
+def character():
+    return render_template('character.html')
+
+@app.route('/about/')
+def about():
+    return render_template('about.html')
+
+@app.route('/add-data', methods=['GET'])
+def add_data_get():
+    message = session.get('message', '')
+    
+    # labels = np.load('data/labels.npy')
+    # count = {k: 0 for k in ENCODER.keys()}
+    # for label in labels:
+    #     count[label] += 1
+    # count = sorted(count.items(), key=lambda x: x[1])
+    # letter = count[0][0]
+
+    letter = choice(list(ENCODER.keys()))
+    
+    return render_template("addData.html", letter=letter, message=message)
+
+@app.route('/add-data', methods=['POST'])
+def add_data_post():
+
+    label = request.form['letter']
+    labels = np.load('data/labels.npy')
+    labels = np.append(labels, label)
+    np.save('data/labels.npy', labels)
+
+    pixels = request.form['pixels']
+    pixels = pixels.split(',')
+    img = np.array(pixels).astype(float).reshape(1, 50, 50)
+    imgs = np.load('data/images.npy')
+    imgs = np.vstack([imgs, img])
+    np.save('data/images.npy', imgs)
+
+    session['message'] = f'"{label}" added to the training dataset'
+
+    return redirect(url_for('add_data_get'))
+
+@app.route('/practice', methods=['GET'])
+def practice_get():
+    letter = choice(list(ENCODER.keys()))
+    return render_template("practice.html", letter=letter, correct='')
+
+@app.route('/practice', methods=['POST'])
+def practice_post():
+    try:
+        letter = request.form['letter']
+
+        pixels = request.form['pixels']
+        pixels = pixels.split(',')
+        img = np.array(pixels).astype(float).reshape(1, 50, 50, 1)
+
+        model = keras.models.load_model('letter.model')
+
+        pred_letter = np.argmax(model.predict(img), axis=-1)
+        pred_letter = ENCODER.inverse[pred_letter[0]]
+
+        correct = 'yes' #if pred_letter == letter else 'no'
+        #letter = choice(list(ENCODER.keys()))
+
+        return render_template("practice.html", letter=pred_letter, correct=correct)
+
+    except Exception as e:
+        print(e)
+        return render_template('error.html')
+
+@app.route('/upload/', methods=['GET', 'POST'])
+def upload():
+    try:
+        imagefile = request.files.get('imagefile', '')
+        #create byte stream from uploaded file
+        file = request.files['imagefile'].read() ## byte file
+        img = Image.open(imagefile)
+        img1 = img.convert('LA')
+        print("Before reducing",img1.size)
+        imgsize=len(file) >> 20
+        if imgsize>2:
+            x, y = img1.size
+            x *= REDUCTION_COEFF
+            y *= REDUCTION_COEFF
+            img1 = img1.resize((floor(x),floor(y)), Image.BICUBIC)
+            print("Img reduced",img1.size)
+        ext = "jpeg"
+        if "." in imagefile.filename:
+            ext = imagefile.filename.rsplit(".", 1)[1]
+        text = pytesseract.image_to_string(img1)
+        #Base64 encoding the uploaded image 
+        img_base64 = base64.b64encode(file)
+        img_base64_str = str(img_base64)
+        #final base64 encoded string
+        img_base64_str = "data:image/"+ ext +";base64,"+img_base64_str.split('\'',1)[1][0:-1]
+        f = open("sample.txt", "a")
+        f.truncate(0)
+        f.write(text)
+        f.close()
+        return render_template('result.html', var=text,img=img_base64_str)
+    except Exception as e:
+        print(e)
+        return render_template('error.html')
+    
+@app.route("/gettext")
+def gettext():
+        with open("sample.txt") as fp:
+            src = fp.read()
+        return Response(
+            src,
+            mimetype="text/csv",
+            headers={"Content-disposition":
+                     "attachment; filename=sample.txt"})
+    
+# ----- API -----
+class UploadAPI(Resource):
+    def get(self):
+        print("check passed")
+        return {"message": "API For TextExtractor2.0"}, 200
+    
+    def post(self):
+        data = parser.parse_args()
+        if data['file'] == "":
+            return {'message':'No file found'}, 400
+        
+        photo = data['file']
+        if photo:
+            photo.save(os.path.join("./static/images/",photo.filename))
+            img = Image.open(photo)
+            img1 = img.convert("LA")
+            text = pytesseract.image_to_string(img1)
+            print("check 1 passed")
+            os.remove(os.path.join("./static/images/",photo.filename))
+            return {"message": text}, 200
+        else:
+            return {'message':'Something went wrong'}, 500
+
+api.add_resource(UploadAPI, "/api/v1/")
+
+# End Of API Endpoint
+        
+if __name__ == "__main__": 
+    MODEL = MnistModel(classes=10)
+    MODEL.load_state_dict(torch.load(
+        'checkpoint/mnist.pt', map_location=DEVICE))
+    MODEL.to(DEVICE)
+    MODEL.eval()
+    app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG_MODE)
+
+
+    
+    
